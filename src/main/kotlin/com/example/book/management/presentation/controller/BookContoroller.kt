@@ -2,8 +2,10 @@ package com.example.book.management.presentation.controller
 
 import com.example.book.management.application.service.BookService
 import com.example.book.management.domain.model.Book
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.util.*
 import java.util.stream.Collectors
 
 /**
@@ -18,9 +20,13 @@ class BookController(private val bookService: BookService){
     fun getBooks(): List<Book> = bookService.findAll()
 
     @GetMapping("/{id}")
-    fun findBookById(@PathVariable(value = "id") bookId: Long): ResponseEntity<Book>{
-        val book: Book = bookService.findById(bookId)
-        return ResponseEntity.ok(book)
+    fun findBookById(@PathVariable(value = "id") bookId: Long): ResponseEntity<Book> {
+        val book = bookService.findById(bookId)
+        if(book != null){
+            return ResponseEntity.ok(book)
+        }else{
+            return ResponseEntity(HttpStatus.NOT_FOUND)
+        }
     }
 
     @PostMapping
@@ -30,10 +36,12 @@ class BookController(private val bookService: BookService){
     fun updateBookById(@PathVariable(value = "id") bookId: Long,
                        @RequestBody newBook: Book): ResponseEntity<Book>{
         val existingBook = bookService.findById(bookId)
-        return run {
+        return if(existingBook != null) {
             val updateBook: Book = existingBook.copy(title = newBook.title)
             bookService.save(updateBook)
             ResponseEntity.ok(updateBook)
+        }else{
+            ResponseEntity(HttpStatus.NOT_FOUND)
         }
     }
 

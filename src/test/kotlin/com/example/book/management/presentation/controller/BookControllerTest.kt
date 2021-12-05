@@ -25,6 +25,9 @@ internal class BookControllerTest(
 ) {
     private val mapper: ObjectMapper = ObjectMapper()
 
+    /**
+     * 書籍リストを取得する
+     */
     @Test
     fun testGetBooks(){
         val result: MvcResult = mockMvc
@@ -43,6 +46,9 @@ internal class BookControllerTest(
         books[3].author shouldBe "Robert Martin"
     }
 
+    /**
+     * 指定した書籍を取得する
+     */
     @Test
     fun testGetOneBook(){
         val result: MvcResult = mockMvc
@@ -54,6 +60,19 @@ internal class BookControllerTest(
         book.author shouldBe "Martin Fowler"
     }
 
+    /**
+     * 指定した書籍を取得する（存在しないID）
+     */
+    @Test
+    fun testGetOneBook2(){
+        mockMvc
+            .perform(get("/books/999"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound)
+    }
+
+    /**
+     * 書籍を検索する
+     */
     @Test
     fun testSearchBookTitle(){
         val result: MvcResult = mockMvc
@@ -61,12 +80,26 @@ internal class BookControllerTest(
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+        books.size shouldBe 3
         books[0].title shouldBe "clean architecture"
         books[1].title shouldBe "clean code"
         books[2].title shouldBe "clean agile"
         books[0].author shouldBe "Robert Martin"
         books[1].author shouldBe "Robert Martin"
         books[2].author shouldBe "Robert Martin"
+    }
+
+    /**
+     * 書籍を検索する（存在しないタイトル）
+     */
+    @Test
+    fun testSearchBookTitle2(){
+        val result: MvcResult = mockMvc
+            .perform(get("/books?title=hoge"))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn()
+        val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+        books.size shouldBe 0
     }
 
     @Test
@@ -82,6 +115,16 @@ internal class BookControllerTest(
         books[0].author shouldBe "Robert Martin"
         books[1].author shouldBe "Robert Martin"
         books[2].author shouldBe "Robert Martin"
+    }
+
+    @Test
+    fun testSearchBookAuthor2(){
+        val result: MvcResult = mockMvc
+            .perform(get("/books?author=hoge"))
+            .andExpect(MockMvcResultMatchers.status().isOk)
+            .andReturn()
+        val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+        books.size shouldBe 0
     }
 
     @Test
