@@ -51,15 +51,4 @@ class BookController(private val bookService: BookService){
     @GetMapping(params = ["author"])
     fun findByAuthor(@RequestParam("author") author: String): List<Book> = bookService.findByAuthor(author)
 
-    @GetMapping(params = ["author", "field"])
-    fun findTitleByAuthor(@RequestParam("author") author: String,
-                          @RequestParam("field") field: String): MutableList<String?>? {
-        val books: List<Book> =  bookService.findByAuthor(author)
-        return if("title" == field){
-            books.stream().map { book -> book.title }.collect(Collectors.toList())
-        }else{
-            books.stream().map { book -> book.author }.collect(Collectors.toList())
-        }
-    }
-
 }

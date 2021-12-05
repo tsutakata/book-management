@@ -128,16 +128,6 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun testSearchBookByAuthor(){
-        val result: MvcResult = mockMvc
-            .perform(get("/books?author=Fowler&field=title"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-        val books: List<String>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<String>>())
-        books[0] shouldBe "refactoring"
-    }
-
-    @Test
     fun testCreateBook(){
         val book = Book(10, "java code","john smith")
         val mapper = ObjectMapper()
