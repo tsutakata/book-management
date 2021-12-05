@@ -28,11 +28,8 @@ internal class BookControllerTest(
 ) {
     private val mapper: ObjectMapper = ObjectMapper()
 
-    /**
-     * 書籍リストを取得する
-     */
     @Test
-    fun testGetBooks(){
+    fun `すべての書籍情報リストが取得できる`(){
         val result: MvcResult = mockMvc
             .perform(get("/books"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -49,11 +46,8 @@ internal class BookControllerTest(
         books[3].author shouldBe "Robert Martin"
     }
 
-    /**
-     * 指定した書籍を取得する
-     */
     @Test
-    fun testGetOneBook(){
+    fun `存在するIDを指定すると、特定の書籍情報が取得できる`(){
         val result: MvcResult = mockMvc
             .perform(get("/books/6"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -63,21 +57,15 @@ internal class BookControllerTest(
         book.author shouldBe "Martin Fowler"
     }
 
-    /**
-     * 指定した書籍を取得する（存在しないID）
-     */
     @Test
-    fun testGetOneBook2(){
+    fun `存在しないIDを指定すると、書籍情報が取得できない`(){
         mockMvc
             .perform(get("/books/999"))
             .andExpect(MockMvcResultMatchers.status().isNotFound)
     }
 
-    /**
-     * 書籍を検索する
-     */
     @Test
-    fun testSearchBookTitle(){
+    fun `存在する書名で検索すると、該当する書名の書籍情報リストが返る`(){
         val result: MvcResult = mockMvc
             .perform(get("/books?title=clean"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -92,11 +80,8 @@ internal class BookControllerTest(
         books[2].author shouldBe "Robert Martin"
     }
 
-    /**
-     * 書籍を検索する（存在しないタイトル）
-     */
     @Test
-    fun testSearchBookTitle2(){
+    fun `存在しない書名で検索すると、空のJSONが返る`(){
         val result: MvcResult = mockMvc
             .perform(get("/books?title=hoge"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -105,11 +90,8 @@ internal class BookControllerTest(
         books.size shouldBe 0
     }
 
-    /**
-     * 著者を検索する
-     */
     @Test
-    fun testSearchBookAuthor(){
+    fun `存在する著者名で検索すると、その著者にひもづく書籍リストが返る`(){
         val result: MvcResult = mockMvc
             .perform(get("/books?author=Robert"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -123,11 +105,8 @@ internal class BookControllerTest(
         books[2].author shouldBe "Robert Martin"
     }
 
-    /**
-     * 著者を検索する（存在しない著者）
-     */
     @Test
-    fun testSearchBookAuthor2(){
+    fun `存在しない著者名で検索すると、空のJSONが返る`(){
         val result: MvcResult = mockMvc
             .perform(get("/books?author=hoge"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -136,11 +115,8 @@ internal class BookControllerTest(
         books.size shouldBe 0
     }
 
-    /**
-     * 書籍を登録する
-     */
     @Test
-    fun testCreateBook(){
+    fun `書籍情報を新規登録できる`(){
         val book = Book(10, "java code","john smith")
         val mapper = ObjectMapper()
         val json: String = mapper.writeValueAsString(book)
@@ -154,11 +130,8 @@ internal class BookControllerTest(
             .andReturn()
     }
 
-    /**
-     * 書籍を更新する
-     */
     @Test
-    fun testUpdateBook(){
+    fun `書籍情報を更新できる`(){
         val book = Book(6, "refactoring2","Martin Fowler")
         val mapper = ObjectMapper()
         val json: String = mapper.writeValueAsString(book)
