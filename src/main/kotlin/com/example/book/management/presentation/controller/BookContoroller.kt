@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import java.util.*
-import java.util.stream.Collectors
 
 /**
  * 書籍コントローラ
@@ -15,28 +13,29 @@ import java.util.stream.Collectors
 @RestController
 @RequestMapping("books")
 @CrossOrigin
-class BookController(private val bookService: BookService){
+class BookController(private val bookService: BookService) {
 
     @GetMapping
     fun getBooks(): List<Book> = bookService.findAll()
 
     @GetMapping("/{id}")
     fun findBookById(@PathVariable(value = "id") bookId: Long) =
-        bookService.findById(bookId) ?:
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "This book does not exist")
+        bookService.findById(bookId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "This book does not exist")
 
     @PostMapping
     fun createNewBook(@RequestBody book: Book): Book = bookService.save(book)
 
     @PostMapping("/{id}")
-    fun updateBookById(@PathVariable(value = "id") bookId: Long,
-                       @RequestBody newBook: Book): ResponseEntity<Book>{
+    fun updateBookById(
+        @PathVariable(value = "id") bookId: Long,
+        @RequestBody newBook: Book
+    ): ResponseEntity<Book> {
         val existingBook = bookService.findById(bookId)
-        return if(existingBook != null) {
+        return if (existingBook != null) {
             val updateBook: Book = existingBook.copy(title = newBook.title)
             bookService.save(updateBook)
             ResponseEntity.ok(updateBook)
-        }else{
+        } else {
             ResponseEntity(HttpStatus.NOT_FOUND)
         }
     }
