@@ -16,6 +16,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.transaction.annotation.Transactional
 
+/**
+ * 書籍コントローラのテストクラス
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -102,6 +105,9 @@ internal class BookControllerTest(
         books.size shouldBe 0
     }
 
+    /**
+     * 著者を検索する
+     */
     @Test
     fun testSearchBookAuthor(){
         val result: MvcResult = mockMvc
@@ -117,6 +123,9 @@ internal class BookControllerTest(
         books[2].author shouldBe "Robert Martin"
     }
 
+    /**
+     * 著者を検索する（存在しない著者）
+     */
     @Test
     fun testSearchBookAuthor2(){
         val result: MvcResult = mockMvc
@@ -127,6 +136,9 @@ internal class BookControllerTest(
         books.size shouldBe 0
     }
 
+    /**
+     * 書籍を登録する
+     */
     @Test
     fun testCreateBook(){
         val book = Book(10, "java code","john smith")
@@ -142,6 +154,9 @@ internal class BookControllerTest(
             .andReturn()
     }
 
+    /**
+     * 書籍を更新する
+     */
     @Test
     fun testUpdateBook(){
         val book = Book(6, "refactoring2","Martin Fowler")
