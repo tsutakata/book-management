@@ -18,7 +18,7 @@ class BookController(private val bookRepository: BookRepository) {
     @GetMapping
     fun getBooks(): List<Book> = bookRepository.findAll()
 
-    @GetMapping("/{id}")
+    @GetMapping("{id}")
     fun findBookById(@PathVariable(value = "id") bookId: Long): ResponseEntity<Book> =
         bookRepository.findById(bookId).map { book ->
             ResponseEntity.ok(book)
@@ -27,7 +27,7 @@ class BookController(private val bookRepository: BookRepository) {
     @PostMapping
     fun createNewBook(@RequestBody book: Book): Book = bookRepository.save(book)
 
-    @PostMapping("/{id}")
+    @PostMapping("{id}")
     fun updateBookById(
         @PathVariable(value = "id") bookId: Long,
         @RequestBody newBook: Book
