@@ -4,7 +4,6 @@ import com.example.book.management.domain.repository.BookRepository
 import com.example.book.management.domain.model.Book
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.util.*
 
 /**
  * 書籍サービス

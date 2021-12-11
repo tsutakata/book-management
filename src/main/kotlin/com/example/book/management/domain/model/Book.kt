@@ -6,14 +6,14 @@ import javax.persistence.GenerationType
 import javax.persistence.Id
 
 /**
- * 書籍
+ * 書籍エンティティ
  */
 @Entity
 data class Book (
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    val id: Long? = null,
 
     val title: String? = null,
 

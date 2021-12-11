@@ -4,6 +4,7 @@ import com.example.book.management.application.service.BookService
 import com.example.book.management.domain.model.Book
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
@@ -13,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException
 @RestController
 @RequestMapping("books")
 @CrossOrigin
+@Validated
 class BookController(private val bookService: BookService) {
 
     @GetMapping
