@@ -19,11 +19,10 @@ class BookController(private val bookRepository: BookRepository) {
     fun getBooks(): List<Book> = bookRepository.findAll()
 
     @GetMapping("/{id}")
-    fun findBookById(@PathVariable(value = "id") bookId: Long): ResponseEntity<Book> {
-        return bookRepository.findById(bookId).map { book ->
+    fun findBookById(@PathVariable(value = "id") bookId: Long): ResponseEntity<Book> =
+        bookRepository.findById(bookId).map { book ->
             ResponseEntity.ok(book)
         }.orElse(ResponseEntity.notFound().build())
-    }
 
     @PostMapping
     fun createNewBook(@RequestBody book: Book): Book = bookRepository.save(book)
@@ -32,17 +31,18 @@ class BookController(private val bookRepository: BookRepository) {
     fun updateBookById(
         @PathVariable(value = "id") bookId: Long,
         @RequestBody newBook: Book
-    ): ResponseEntity<Book> {
-        return bookRepository.findById(bookId).map { existingBook ->
+    ): ResponseEntity<Book> =
+        bookRepository.findById(bookId).map { existingBook ->
             val updateBook = existingBook.copy(title = newBook.title, author = newBook.author)
             ResponseEntity.ok().body(bookRepository.save(updateBook))
         }.orElse(ResponseEntity.notFound().build())
-    }
 
     @GetMapping(params = ["title"])
-    fun findByTitle(@RequestParam("title") title: String): List<Book> = bookRepository.findByTitleContaining(title)
+    fun findByTitle(@RequestParam("title") title: String): List<Book> =
+        bookRepository.findByTitleContaining(title)
 
     @GetMapping(params = ["author"])
-    fun findByAuthor(@RequestParam("author") author: String): List<Book> = bookRepository.findByAuthorContaining(author)
+    fun findByAuthor(@RequestParam("author") author: String): List<Book> =
+        bookRepository.findByAuthorContaining(author)
 
 }
