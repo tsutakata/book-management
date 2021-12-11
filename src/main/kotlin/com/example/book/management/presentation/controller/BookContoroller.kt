@@ -1,12 +1,10 @@
 package com.example.book.management.presentation.controller
 
-import com.example.book.management.application.service.BookService
 import com.example.book.management.domain.model.Book
-import org.springframework.http.HttpStatus
+import com.example.book.management.domain.repository.BookRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 /**
  * 書籍コントローラ
@@ -15,37 +13,36 @@ import org.springframework.web.server.ResponseStatusException
 @RequestMapping("books")
 @CrossOrigin
 @Validated
-class BookController(private val bookService: BookService) {
+class BookController(private val bookRepository: BookRepository) {
 
     @GetMapping
-    fun getBooks(): List<Book> = bookService.findAll()
+    fun getBooks(): List<Book> = bookRepository.findAll()
 
     @GetMapping("/{id}")
-    fun findBookById(@PathVariable(value = "id") bookId: Long) =
-        bookService.findById(bookId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "This book does not exist")
+    fun findBookById(@PathVariable(value = "id") bookId: Long): ResponseEntity<Book> {
+        return bookRepository.findById(bookId).map { book ->
+            ResponseEntity.ok(book)
+        }.orElse(ResponseEntity.notFound().build())
+    }
 
     @PostMapping
-    fun createNewBook(@RequestBody book: Book): Book = bookService.save(book)
+    fun createNewBook(@RequestBody book: Book): Book = bookRepository.save(book)
 
     @PostMapping("/{id}")
     fun updateBookById(
         @PathVariable(value = "id") bookId: Long,
         @RequestBody newBook: Book
     ): ResponseEntity<Book> {
-        val existingBook = bookService.findById(bookId)
-        return if (existingBook != null) {
-            val updateBook: Book = existingBook.copy(title = newBook.title)
-            bookService.save(updateBook)
-            ResponseEntity.ok(updateBook)
-        } else {
-            ResponseEntity(HttpStatus.NOT_FOUND)
-        }
+        return bookRepository.findById(bookId).map { existingBook ->
+            val updateBook = existingBook.copy(title = newBook.title, author = newBook.author)
+            ResponseEntity.ok().body(bookRepository.save(updateBook))
+        }.orElse(ResponseEntity.notFound().build())
     }
 
     @GetMapping(params = ["title"])
-    fun findByTitle(@RequestParam("title") title: String): List<Book> = bookService.findByTitle(title)
+    fun findByTitle(@RequestParam("title") title: String): List<Book> = bookRepository.findByTitleContaining(title)
 
     @GetMapping(params = ["author"])
-    fun findByAuthor(@RequestParam("author") author: String): List<Book> = bookService.findByAuthor(author)
+    fun findByAuthor(@RequestParam("author") author: String): List<Book> = bookRepository.findByAuthorContaining(author)
 
 }
