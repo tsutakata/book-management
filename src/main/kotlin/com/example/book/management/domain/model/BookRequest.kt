@@ -5,7 +5,7 @@ import javax.validation.constraints.NotBlank
 /**
  * 書籍リクエスト
  */
-data class BookRequest (
+data class BookRequest(
 
     /** 書名 */
     @field:NotBlank

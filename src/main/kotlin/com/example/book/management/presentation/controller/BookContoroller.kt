@@ -71,12 +71,13 @@ class BookController(private val bookRepository: BookRepository) {
     @GetMapping(params = ["author", "field"])
     fun findBookTitlesByAuthor(
         @RequestParam("author") author: String,
-        @RequestParam("field") field: String): ResponseEntity<List<String>> {
+        @RequestParam("field") field: String
+    ): ResponseEntity<List<String>> {
 
-        if(field != "title"){
+        if (field != "title") {
             return ResponseEntity.badRequest().build()
         }
-        val books: List<Book> =  bookRepository.findByAuthor(author)
+        val books: List<Book> = bookRepository.findByAuthor(author)
         val titles: List<String> = books.stream().map { book -> book.title }.collect(Collectors.toList())
         return ResponseEntity.ok().body(titles)
     }

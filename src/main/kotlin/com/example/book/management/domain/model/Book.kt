@@ -9,7 +9,7 @@ import javax.persistence.Id
  * 書籍エンティティ
  */
 @Entity
-data class Book (
+data class Book(
 
     /** 書籍ID */
     @Id

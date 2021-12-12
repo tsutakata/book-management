@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
  * 書籍リポジトリ
  */
 @Repository
-interface BookRepository : JpaRepository<Book, Long>{
+interface BookRepository : JpaRepository<Book, Long> {
 
     /**
      * 著者名を指定して、書籍情報を取得する（完全一致）
