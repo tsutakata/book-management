@@ -1,5 +1,5 @@
 ## 書籍管理サンプルアプリケーション
-〜Kotlin + Spring Boot + JPA(Hibernate) によるサンプルアプリケーション〜
+〜Kotlin + Spring Boot + Spring Data JPA(Hibernate) によるREST APIサンプルアプリケーション〜
 
 ### 概要
 書籍を管理するサンプルアプリケーション
