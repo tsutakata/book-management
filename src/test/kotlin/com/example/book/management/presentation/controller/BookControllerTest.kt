@@ -31,41 +31,73 @@ internal class BookControllerTest(
 ) {
     private val mapper: ObjectMapper = ObjectMapper()
 
-    fun postNewBook(book: BookRequest, expectStatus: ResultMatcher){
-        val mapper = ObjectMapper()
-        val json: String = mapper.writeValueAsString(book)
+    /**
+     * すべての書籍を取得する
+     */
+    fun getAllBooks(expectStatus: ResultMatcher): MvcResult =
+        mockMvc
+            .perform(get("/books"))
+            .andExpect(expectStatus)
+            .andReturn()
+
+    /**
+     * 指定したIDに該当する書籍を取得する
+     */
+    fun getBookById(id: Long, expectStatus: ResultMatcher): MvcResult =
+        mockMvc
+            .perform(get("/books/${id}"))
+            .andExpect(expectStatus)
+            .andReturn()
+
+    /**
+     * 書名・著者名に部分一致する書籍を取得する
+     */
+    fun getBookByTitleOrAuthor(column: String, keyword: String, expectStatus: ResultMatcher): MvcResult =
+        mockMvc
+            .perform(get("/books?${column}=${keyword}"))
+            .andExpect(expectStatus)
+            .andReturn()
+
+    /**
+     * 著者名に完全に一致する書籍を取得する
+     */
+    fun getBookTitlesByAuthor(keyword: String, field: String, expectStatus: ResultMatcher): MvcResult =
+        mockMvc
+            .perform(get("/books?author=${keyword}&field=${field}"))
+            .andExpect(expectStatus)
+            .andReturn()
+
+    /**
+     * 書籍を新規に登録する
+     */
+    fun postNewBook(book: BookRequest, expectStatus: ResultMatcher): MvcResult =
         mockMvc
             .perform(
                 post("/books")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(json)
+                    .content(mapper.writeValueAsString(book))
             )
             .andExpect(expectStatus)
             .andReturn()
-    }
 
-    fun postUpdateBook(book: BookRequest, expectStatus: ResultMatcher): MvcResult{
-        val mapper = ObjectMapper()
-        val json: String = mapper.writeValueAsString(book)
-        return mockMvc
+    /**
+     * 書籍を更新する
+     */
+    fun postUpdateBook(book: BookRequest, expectStatus: ResultMatcher): MvcResult =
+        mockMvc
             .perform(
                 post("/books/1")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(json)
+                    .content(mapper.writeValueAsString(book))
             )
             .andExpect(expectStatus)
             .andReturn()
-    }
 
     @Test
     fun `パラメータなしでリクエストすると、すべての書籍情報リストが取得できる`(){
-        val result: MvcResult = mockMvc
-            .perform(get("/books"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-        val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+        val result: MvcResult = getAllBooks(MockMvcResultMatchers.status().isOk)
+        val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
 
-        // 検証
         // 書籍の冊数
         books.size shouldBe 4
 
@@ -90,11 +122,8 @@ internal class BookControllerTest(
 
     @Test
     fun `パラメータに存在する書籍IDを指定してリクエストすると、特定の書籍情報が取得できる`(){
-        val result: MvcResult = mockMvc
-            .perform(get("/books/1"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-        val book: Book  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
+        val result: MvcResult = getBookById(1, MockMvcResultMatchers.status().isOk)
+        val book: Book = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
         book.id shouldBe 1
         book.title shouldBe "Refactoring"
         book.author shouldBe "Martin Fowler"
@@ -102,18 +131,13 @@ internal class BookControllerTest(
 
     @Test
     fun `パラメータに存在しない書籍IDを指定してリクエストすると、書籍情報が取得できない`(){
-        mockMvc
-            .perform(get("/books/999"))
-            .andExpect(MockMvcResultMatchers.status().isNotFound)
+        getBookById(999, MockMvcResultMatchers.status().isNotFound)
     }
 
     @Test
     fun `存在する書名で検索すると、該当する書名の書籍情報リストが取得できる`(){
-        val result: MvcResult = mockMvc
-            .perform(get("/books?title=Clean"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-        val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+        val result: MvcResult = getBookByTitleOrAuthor("title","Clean", MockMvcResultMatchers.status().isOk)
+        val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
         books.size shouldBe 3
         books[0].title shouldBe "Clean Architecture"
         books[1].title shouldBe "Clean Code"
@@ -125,21 +149,17 @@ internal class BookControllerTest(
 
     @Test
     fun `存在しない書名で検索すると、空のJSONが返る`(){
-        val result: MvcResult = mockMvc
-            .perform(get("/books?title=hoge"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-        val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+        val result: MvcResult =
+            getBookByTitleOrAuthor("title","hoge", MockMvcResultMatchers.status().isOk)
+        val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
         books.size shouldBe 0
     }
 
     @Test
     fun `存在する著者名で検索すると、その著者にひもづく書籍リストが返る`(){
-        val result: MvcResult = mockMvc
-            .perform(get("/books?author=Robert"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-        val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+        val result: MvcResult =
+            getBookByTitleOrAuthor("author","Robert", MockMvcResultMatchers.status().isOk)
+        val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
         books[0].title shouldBe "Clean Architecture"
         books[1].title shouldBe "Clean Code"
         books[2].title shouldBe "Clean Agile"
@@ -150,12 +170,34 @@ internal class BookControllerTest(
 
     @Test
     fun `存在しない著者名で検索すると、空のJSONが返る`(){
-        val result: MvcResult = mockMvc
-            .perform(get("/books?author=hoge"))
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
-        val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+        val result: MvcResult =
+            getBookByTitleOrAuthor("author","hoge", MockMvcResultMatchers.status().isOk)
+        val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
         books.size shouldBe 0
+    }
+
+    @Test
+    fun `著者名が完全に一致するリクエストをすると、その著者名の書名リストが取得できる`(){
+        val result: MvcResult =
+            getBookTitlesByAuthor("Robert Martin","title", MockMvcResultMatchers.status().isOk)
+        val titles: List<String> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<String>>())
+        titles.size shouldBe 3
+        titles[0] shouldBe "Clean Architecture"
+        titles[1] shouldBe "Clean Code"
+        titles[2] shouldBe "Clean Agile"
+    }
+
+    @Test
+    fun `著者名が部分的に一致するリクエストをしても、その著者名の書名リストが取得できない`(){
+        val result: MvcResult =
+            getBookTitlesByAuthor("Robert","title", MockMvcResultMatchers.status().isOk)
+        val titles: List<String> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<String>>())
+        titles.size shouldBe 0
+    }
+
+    @Test
+    fun `fieldの指定をtitle以外でリクエストすると、その著者名の書名リストが取得できない`(){
+        getBookTitlesByAuthor("Robert Martin","author", MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
