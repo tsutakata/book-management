@@ -11,11 +11,14 @@ import javax.persistence.Id
 @Entity
 data class Book (
 
+    /** 書籍ID */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long?,
 
+    /** 書名 */
     val title: String,
 
+    /** 著者名 */
     val author: String
 )

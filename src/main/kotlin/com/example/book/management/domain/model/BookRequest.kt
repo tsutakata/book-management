@@ -7,9 +7,11 @@ import javax.validation.constraints.NotBlank
  */
 data class BookRequest (
 
+    /** 書名 */
     @field:NotBlank
     val title: String,
 
+    /** 著者名 */
     @field:NotBlank
     val author: String
 )

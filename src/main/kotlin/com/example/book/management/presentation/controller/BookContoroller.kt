@@ -15,19 +15,31 @@ import org.springframework.web.bind.annotation.*
 @CrossOrigin
 class BookController(private val bookRepository: BookRepository) {
 
+    /**
+     * すべての書籍情報を取得する
+     */
     @GetMapping
     fun getBooks(): List<Book> = bookRepository.findAll()
 
+    /**
+     * 指定された書籍IDの書籍情報を取得する
+     */
     @GetMapping("{id}")
     fun findBookById(@PathVariable(value = "id") bookId: Long): ResponseEntity<Book> =
         bookRepository.findById(bookId).map { book ->
             ResponseEntity.ok(book)
         }.orElse(ResponseEntity.notFound().build())
 
+    /**
+     * 書籍情報を新規登録する
+     */
     @PostMapping
     fun createNewBook(@RequestBody @Validated request: BookRequest): Book =
         bookRepository.save(Book(null, request.title, request.author))
 
+    /**
+     * 書籍情報を更新する
+     */
     @PostMapping("{id}")
     fun updateBookById(
         @PathVariable(value = "id") bookId: Long,
@@ -38,10 +50,16 @@ class BookController(private val bookRepository: BookRepository) {
             ResponseEntity.ok().body(bookRepository.save(updateBook))
         }.orElse(ResponseEntity.notFound().build())
 
+    /**
+     * 書名を指定して、書籍情報を検索する
+     */
     @GetMapping(params = ["title"])
     fun findByTitle(@RequestParam("title") title: String): List<Book> =
         bookRepository.findByTitleContaining(title)
 
+    /**
+     * 著者名を指定して、書籍情報を検索する
+     */
     @GetMapping(params = ["author"])
     fun findByAuthor(@RequestParam("author") author: String): List<Book> =
         bookRepository.findByAuthorContaining(author)
