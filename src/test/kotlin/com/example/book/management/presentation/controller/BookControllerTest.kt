@@ -178,19 +178,19 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `書名、著者名を入力すると、書籍情報を新規登録できる`() {
+    fun `書名、著者名を入力してPOSTリクエストすると、書籍情報を新規登録できる`() {
         val book = BookRequest("java code", "john smith")
         postNewBook(book, MockMvcResultMatchers.status().isOk)
     }
 
     @Test
-    fun `著者名のみ入力すると、書籍情報を新規登録できない`() {
+    fun `著者名のみ入力してPOSTリクエストしても、書籍情報を新規登録できない`() {
         val book = BookRequest("", "john smith")
         postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
-    fun `書名のみ入力すると、書籍情報を新規登録できない`() {
+    fun `書名のみ入力してPOSTリクエストしても、書籍情報を新規登録できない`() {
         val book = BookRequest("Java Tutorial", "")
         postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
@@ -202,7 +202,7 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `書名、著者名を入力すると、書籍情報を更新できる`() {
+    fun `書名、著者名を入力してPOSTリクエストすると、書籍情報を更新できる`() {
         val book = BookRequest("Refactoring2", "Martin Fowler")
         val result: MvcResult = postUpdateBook(book, MockMvcResultMatchers.status().isOk)
         val updateBook: Book = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
@@ -211,13 +211,13 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `書名のみ入力すると、書籍情報を更新できない`() {
+    fun `書名のみ入力してPOSTリクエストしても、書籍情報を更新できない`() {
         val book = BookRequest("Refactoring2", "")
         postUpdateBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
-    fun `著者名のみ入力すると、書籍情報を更新できない`() {
+    fun `著者名のみ入力してPOSTリクエストしても、書籍情報を更新できない`() {
         val book = BookRequest("", "Martin Fowler")
         postUpdateBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
