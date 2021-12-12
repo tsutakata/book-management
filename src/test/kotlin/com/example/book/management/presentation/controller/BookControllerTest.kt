@@ -4,6 +4,7 @@ import com.example.book.management.domain.model.Book
 import com.example.book.management.domain.model.BookRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -94,92 +95,68 @@ internal class BookControllerTest(
             .andReturn()
 
     @Test
-    fun `パラメータなしでリクエストすると、すべての書籍情報リストが取得できる`(){
+    fun `パラメータなしでGETリクエストすると、すべての書籍情報が取得できる`() {
         val result: MvcResult = getAllBooks(MockMvcResultMatchers.status().isOk)
         val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
-
-        // 書籍の冊数
         books.size shouldBe 4
-
-        // ID
-        books[0].id shouldBe 1
-        books[1].id shouldBe 2
-        books[2].id shouldBe 3
-        books[3].id shouldBe 4
-
-        // 書名
-        books[0].title shouldBe "Refactoring"
-        books[1].title shouldBe "Clean Architecture"
-        books[2].title shouldBe "Clean Code"
-        books[3].title shouldBe "Clean Agile"
-
-        // 著者名
-        books[0].author shouldBe "Martin Fowler"
-        books[1].author shouldBe "Robert Martin"
-        books[2].author shouldBe "Robert Martin"
-        books[3].author shouldBe "Robert Martin"
+        books[0] shouldBeEqualToComparingFields Book(1, "Refactoring", "Martin Fowler")
+        books[1] shouldBeEqualToComparingFields Book(2, "Clean Architecture", "Robert Martin")
+        books[2] shouldBeEqualToComparingFields Book(3, "Clean Code", "Robert Martin")
+        books[3] shouldBeEqualToComparingFields Book(4, "Clean Agile", "Robert Martin")
     }
 
     @Test
-    fun `パラメータに存在する書籍IDを指定してリクエストすると、特定の書籍情報が取得できる`(){
+    fun `存在するIDを指定してGETリクエストすると、該当する書籍情報が取得できる`() {
         val result: MvcResult = getBookById(1, MockMvcResultMatchers.status().isOk)
         val book: Book = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
-        book.id shouldBe 1
-        book.title shouldBe "Refactoring"
-        book.author shouldBe "Martin Fowler"
+        book shouldBeEqualToComparingFields Book(1, "Refactoring", "Martin Fowler")
     }
 
     @Test
-    fun `パラメータに存在しない書籍IDを指定してリクエストすると、書籍情報が取得できない`(){
+    fun `存在しないIDを指定してGETリクエストすると、書籍情報が取得できない`() {
         getBookById(999, MockMvcResultMatchers.status().isNotFound)
     }
 
     @Test
-    fun `存在する書名で検索すると、該当する書名の書籍情報リストが取得できる`(){
-        val result: MvcResult = getBookByTitleOrAuthor("title","Clean", MockMvcResultMatchers.status().isOk)
+    fun `存在する書名で検索すると、該当する書名の書籍情報が取得できる`() {
+        val result: MvcResult = getBookByTitleOrAuthor("title", "Clean", MockMvcResultMatchers.status().isOk)
         val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
         books.size shouldBe 3
-        books[0].title shouldBe "Clean Architecture"
-        books[1].title shouldBe "Clean Code"
-        books[2].title shouldBe "Clean Agile"
-        books[0].author shouldBe "Robert Martin"
-        books[1].author shouldBe "Robert Martin"
-        books[2].author shouldBe "Robert Martin"
+        books[0] shouldBeEqualToComparingFields Book(2, "Clean Architecture", "Robert Martin")
+        books[1] shouldBeEqualToComparingFields Book(3, "Clean Code", "Robert Martin")
+        books[2] shouldBeEqualToComparingFields Book(4, "Clean Agile", "Robert Martin")
     }
 
     @Test
-    fun `存在しない書名で検索すると、空のJSONが返る`(){
+    fun `存在しない書名で検索すると、空のJSONが返る`() {
         val result: MvcResult =
-            getBookByTitleOrAuthor("title","hoge", MockMvcResultMatchers.status().isOk)
+            getBookByTitleOrAuthor("title", "hoge", MockMvcResultMatchers.status().isOk)
         val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
         books.size shouldBe 0
     }
 
     @Test
-    fun `存在する著者名で検索すると、その著者にひもづく書籍リストが返る`(){
+    fun `存在する著者名で部分一致で検索すると、その著者に該当する書籍情報が取得できる`() {
         val result: MvcResult =
-            getBookByTitleOrAuthor("author","Robert", MockMvcResultMatchers.status().isOk)
+            getBookByTitleOrAuthor("author", "Robert", MockMvcResultMatchers.status().isOk)
         val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
-        books[0].title shouldBe "Clean Architecture"
-        books[1].title shouldBe "Clean Code"
-        books[2].title shouldBe "Clean Agile"
-        books[0].author shouldBe "Robert Martin"
-        books[1].author shouldBe "Robert Martin"
-        books[2].author shouldBe "Robert Martin"
+        books[0] shouldBeEqualToComparingFields Book(2, "Clean Architecture", "Robert Martin")
+        books[1] shouldBeEqualToComparingFields Book(3, "Clean Code", "Robert Martin")
+        books[2] shouldBeEqualToComparingFields Book(4, "Clean Agile", "Robert Martin")
     }
 
     @Test
-    fun `存在しない著者名で検索すると、空のJSONが返る`(){
+    fun `存在しない著者名で部分一致で検索すると、空のJSONが返る`() {
         val result: MvcResult =
-            getBookByTitleOrAuthor("author","hoge", MockMvcResultMatchers.status().isOk)
+            getBookByTitleOrAuthor("author", "hoge", MockMvcResultMatchers.status().isOk)
         val books: List<Book> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
         books.size shouldBe 0
     }
 
     @Test
-    fun `著者名が完全に一致するリクエストをすると、その著者名の書名リストが取得できる`(){
+    fun `存在する著者名で完全一致で検索すると、その著者名の書名リストが取得できる`() {
         val result: MvcResult =
-            getBookTitlesByAuthor("Robert Martin","title", MockMvcResultMatchers.status().isOk)
+            getBookTitlesByAuthor("Robert Martin", "title", MockMvcResultMatchers.status().isOk)
         val titles: List<String> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<String>>())
         titles.size shouldBe 3
         titles[0] shouldBe "Clean Architecture"
@@ -188,60 +165,60 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `著者名が部分的に一致するリクエストをしても、その著者名の書名リストが取得できない`(){
+    fun `著者名が部分的に一致するリクエストをしても、その著者名の書名リストが取得できない`() {
         val result: MvcResult =
-            getBookTitlesByAuthor("Robert","title", MockMvcResultMatchers.status().isOk)
+            getBookTitlesByAuthor("Robert", "title", MockMvcResultMatchers.status().isOk)
         val titles: List<String> = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<String>>())
         titles.size shouldBe 0
     }
 
     @Test
-    fun `fieldの指定をtitle以外でリクエストすると、その著者名の書名リストが取得できない`(){
-        getBookTitlesByAuthor("Robert Martin","author", MockMvcResultMatchers.status().isBadRequest)
+    fun `fieldの指定をtitle以外でリクエストすると、その著者名の書名リストが取得できない`() {
+        getBookTitlesByAuthor("Robert Martin", "author", MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
-    fun `書名、著者名を入力すると、書籍情報を新規登録できる`(){
-        val book = BookRequest("java code","john smith")
+    fun `書名、著者名を入力すると、書籍情報を新規登録できる`() {
+        val book = BookRequest("java code", "john smith")
         postNewBook(book, MockMvcResultMatchers.status().isOk)
     }
 
     @Test
-    fun `著者名のみ入力すると、書籍情報を新規登録できない`(){
-        val book = BookRequest("","john smith")
+    fun `著者名のみ入力すると、書籍情報を新規登録できない`() {
+        val book = BookRequest("", "john smith")
         postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
-    fun `書名のみ入力すると、書籍情報を新規登録できない`(){
-        val book = BookRequest("Java Tutorial","")
+    fun `書名のみ入力すると、書籍情報を新規登録できない`() {
+        val book = BookRequest("Java Tutorial", "")
         postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
-    fun `書名、著者名ともにブランクでリクエストすると、書籍情報を新規登録できない`(){
-        val book = BookRequest("","")
+    fun `書名、著者名ともにブランクでリクエストすると、書籍情報を新規登録できない`() {
+        val book = BookRequest("", "")
         postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
-    fun `書名、著者名を入力すると、書籍情報を更新できる`(){
-        val book = BookRequest("Refactoring2","Martin Fowler")
+    fun `書名、著者名を入力すると、書籍情報を更新できる`() {
+        val book = BookRequest("Refactoring2", "Martin Fowler")
         val result: MvcResult = postUpdateBook(book, MockMvcResultMatchers.status().isOk)
-        val updateBook: Book  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
+        val updateBook: Book = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
         updateBook.title shouldBe "Refactoring2"
         updateBook.author shouldBe "Martin Fowler"
     }
 
     @Test
-    fun `書名のみ入力すると、書籍情報を更新できない`(){
-        val book = BookRequest("Refactoring2","")
+    fun `書名のみ入力すると、書籍情報を更新できない`() {
+        val book = BookRequest("Refactoring2", "")
         postUpdateBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
-    fun `著者名のみ入力すると、書籍情報を更新できない`(){
-        val book = BookRequest("","Martin Fowler")
+    fun `著者名のみ入力すると、書籍情報を更新できない`() {
+        val book = BookRequest("", "Martin Fowler")
         postUpdateBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
