@@ -35,10 +35,10 @@ internal class BookControllerTest(
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
-        books[0].title shouldBe "refactoring"
-        books[1].title shouldBe "clean architecture"
-        books[2].title shouldBe "clean code"
-        books[3].title shouldBe "clean agile"
+        books[0].title shouldBe "Refactoring"
+        books[1].title shouldBe "Clean Architecture"
+        books[2].title shouldBe "Clean Code"
+        books[3].title shouldBe "Clean Agile"
 
         books[0].author shouldBe "Martin Fowler"
         books[1].author shouldBe "Robert Martin"
@@ -49,11 +49,11 @@ internal class BookControllerTest(
     @Test
     fun `存在するIDを指定すると、特定の書籍情報が取得できる`(){
         val result: MvcResult = mockMvc
-            .perform(get("/books/6"))
+            .perform(get("/books/1"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         val book: Book  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
-        book.title shouldBe "refactoring"
+        book.title shouldBe "Refactoring"
         book.author shouldBe "Martin Fowler"
     }
 
@@ -67,14 +67,14 @@ internal class BookControllerTest(
     @Test
     fun `存在する書名で検索すると、該当する書名の書籍情報リストが返る`(){
         val result: MvcResult = mockMvc
-            .perform(get("/books?title=clean"))
+            .perform(get("/books?title=Clean"))
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
         books.size shouldBe 3
-        books[0].title shouldBe "clean architecture"
-        books[1].title shouldBe "clean code"
-        books[2].title shouldBe "clean agile"
+        books[0].title shouldBe "Clean Architecture"
+        books[1].title shouldBe "Clean Code"
+        books[2].title shouldBe "Clean Agile"
         books[0].author shouldBe "Robert Martin"
         books[1].author shouldBe "Robert Martin"
         books[2].author shouldBe "Robert Martin"
@@ -97,9 +97,9 @@ internal class BookControllerTest(
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
-        books[0].title shouldBe "clean architecture"
-        books[1].title shouldBe "clean code"
-        books[2].title shouldBe "clean agile"
+        books[0].title shouldBe "Clean Architecture"
+        books[1].title shouldBe "Clean Code"
+        books[2].title shouldBe "Clean Agile"
         books[0].author shouldBe "Robert Martin"
         books[1].author shouldBe "Robert Martin"
         books[2].author shouldBe "Robert Martin"
@@ -132,17 +132,20 @@ internal class BookControllerTest(
 
     @Test
     fun `書籍情報を更新できる`(){
-        val book = Book(6, "refactoring2","Martin Fowler")
+        val book = Book(1, "Refactoring2","Martin Fowler")
         val mapper = ObjectMapper()
         val json: String = mapper.writeValueAsString(book)
-        mockMvc
+        val result: MvcResult = mockMvc
             .perform(
-                post("/books/6")
+                post("/books/1")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json)
             )
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
+        val updateBook: Book  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
+        updateBook.title shouldBe "Refactoring2"
+        updateBook.author shouldBe "Martin Fowler"
     }
 
 }

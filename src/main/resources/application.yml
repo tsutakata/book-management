@@ -1,16 +1,21 @@
 spring:
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=TRUE;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
 #  datasource:
 #    url: jdbc:h2:mem:AZ;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE
 #    driverClassName: org.h2.Driver
 #    username: sa
 #    password:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/demo
-    username: postgres
-    password: postgres
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/demo
+#    username: postgres
+#    password: postgres
   jpa:
-#    database-platform: org.hibernate.dialect.H2Dialect
-    database: POSTGRESQL
+    database-platform: org.hibernate.dialect.H2Dialect
+#    database: POSTGRESQL
     open-in-view: true
 #    show-sql: true
 #    use_sql_comments: true
