@@ -6,6 +6,7 @@ import com.example.book.management.domain.repository.BookRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import java.util.stream.Collectors
 
 /**
  * 書籍コントローラ
@@ -19,7 +20,7 @@ class BookController(private val bookRepository: BookRepository) {
      * すべての書籍情報を取得する
      */
     @GetMapping
-    fun getBooks(): List<Book> = bookRepository.findAll()
+    fun findAllBooks(): List<Book> = bookRepository.findAll()
 
     /**
      * 指定された書籍IDの書籍情報を取得する
@@ -54,14 +55,30 @@ class BookController(private val bookRepository: BookRepository) {
      * 書名を指定して、書籍情報を検索する
      */
     @GetMapping(params = ["title"])
-    fun findByTitle(@RequestParam("title") title: String): List<Book> =
+    fun findBooksByTitle(@RequestParam("title") title: String): List<Book> =
         bookRepository.findByTitleContaining(title)
 
     /**
      * 著者名を指定して、書籍情報を検索する
      */
     @GetMapping(params = ["author"])
-    fun findByAuthor(@RequestParam("author") author: String): List<Book> =
+    fun findBooksByAuthor(@RequestParam("author") author: String): List<Book> =
         bookRepository.findByAuthorContaining(author)
+
+    /**
+     * 著者名を指定して、該当する著者の書名リストを取得する
+     */
+    @GetMapping(params = ["author", "field"])
+    fun findBookTitlesByAuthor(
+        @RequestParam("author") author: String,
+        @RequestParam("field") field: String): ResponseEntity<List<String>> {
+
+        if(field != "title"){
+            return ResponseEntity.badRequest().build()
+        }
+        val books: List<Book> =  bookRepository.findByAuthor(author)
+        val titles: List<String> = books.stream().map { book -> book.title }.collect(Collectors.toList())
+        return ResponseEntity.ok().body(titles)
+    }
 
 }

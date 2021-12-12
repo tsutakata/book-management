@@ -11,12 +11,17 @@ import org.springframework.stereotype.Repository
 interface BookRepository : JpaRepository<Book, Long>{
 
     /**
-     * 書名を指定して、書籍情報を検索する
+     * 著者名を指定して、書籍情報を取得する（完全一致）
      */
-    fun findByTitleContaining(title: String) : List<Book>
+    fun findByAuthor(author: String): List<Book>
 
     /**
-     * 著者名を指定して、書籍情報を検索する
+     * 書名を指定して、書籍情報を取得する（部分一致）
      */
-    fun findByAuthorContaining(author: String) : List<Book>
+    fun findByTitleContaining(title: String): List<Book>
+
+    /**
+     * 著者名を指定して、書籍情報を検索する（部分一致）
+     */
+    fun findByAuthorContaining(author: String): List<Book>
 }
