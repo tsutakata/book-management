@@ -35,11 +35,24 @@ internal class BookControllerTest(
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         val books: List<Book>  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<List<Book>>())
+
+        // 検証
+        // 書籍の冊数
+        books.size shouldBe 4
+
+        // ID
+        books[0].id shouldBe 1
+        books[1].id shouldBe 2
+        books[2].id shouldBe 3
+        books[3].id shouldBe 4
+
+        // 書名
         books[0].title shouldBe "Refactoring"
         books[1].title shouldBe "Clean Architecture"
         books[2].title shouldBe "Clean Code"
         books[3].title shouldBe "Clean Agile"
 
+        // 著者名
         books[0].author shouldBe "Martin Fowler"
         books[1].author shouldBe "Robert Martin"
         books[2].author shouldBe "Robert Martin"
@@ -53,6 +66,7 @@ internal class BookControllerTest(
             .andExpect(MockMvcResultMatchers.status().isOk)
             .andReturn()
         val book: Book  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
+        book.id shouldBe 1
         book.title shouldBe "Refactoring"
         book.author shouldBe "Martin Fowler"
     }
