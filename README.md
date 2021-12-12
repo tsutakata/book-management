@@ -38,3 +38,17 @@ Bookテーブル
 |ID  |数値  |◯  |◯|
 |書籍名  |文字列  |◯  ||
 |著者名  |文字列  |◯  ||
+
+#### 参考URL
+##### 公式
+[Kotlin](https://kotlinlang.org/)  
+[Spring Boot](https://spring.io/projects/spring-boot)  
+[Spring Data JPA](https://spring.io/projects/spring-data-jpa)  
+[Spring Framework > 言語サポート > Kotlin](https://spring.pleiades.io/spring-framework/docs/current/reference/html/languages.html#languages)  
+[Kotlin で Spring Boot Web アプリケーションの作成](https://spring.pleiades.io/guides/tutorials/spring-boot-kotlin/)  
+
+##### blog
+[雑にKotlinでSpring触ってみた件](https://blog.morifuji-is.ninja/post/2020-04-29/)  
+[SpringBootでのテストについて触った結果をまとめてみた](https://blog.morifuji-is.ninja/post/2020-07-23/)  
+[SpringBootのDataJPAに戦術的DDDの要素を導入するにはどうすれば良いか調べてみた](https://blog.morifuji-is.ninja/post/2021-04-23/)  
+[Spring + JPAによるアプリケーション構築事例](https://medium.com/finatext/example-of-application-building-with-spring-jpa-6e52d456f5cd)  
