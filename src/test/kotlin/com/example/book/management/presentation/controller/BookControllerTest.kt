@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
+import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 /**
  * 書籍コントローラのテストクラス
  */
+@Suppress("NonAsciiCharacters")
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -28,8 +30,34 @@ internal class BookControllerTest(
 ) {
     private val mapper: ObjectMapper = ObjectMapper()
 
+    fun postNewBook(book: Book, expectStatus: ResultMatcher){
+        val mapper = ObjectMapper()
+        val json: String = mapper.writeValueAsString(book)
+        mockMvc
+            .perform(
+                post("/books")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json)
+            )
+            .andExpect(expectStatus)
+            .andReturn()
+    }
+
+    fun postUpdateBook(book: Book, expectStatus: ResultMatcher): MvcResult{
+        val mapper = ObjectMapper()
+        val json: String = mapper.writeValueAsString(book)
+        return mockMvc
+            .perform(
+                post("/books/${book.id}")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json)
+            )
+            .andExpect(expectStatus)
+            .andReturn()
+    }
+
     @Test
-    fun `すべての書籍情報リストが取得できる`(){
+    fun `パラメータなしでリクエストすると、すべての書籍情報リストが取得できる`(){
         val result: MvcResult = mockMvc
             .perform(get("/books"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -60,7 +88,7 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `存在するIDを指定すると、特定の書籍情報が取得できる`(){
+    fun `パラメータに存在する書籍IDを指定してリクエストすると、特定の書籍情報が取得できる`(){
         val result: MvcResult = mockMvc
             .perform(get("/books/1"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -72,14 +100,14 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `存在しないIDを指定すると、書籍情報が取得できない`(){
+    fun `パラメータに存在しない書籍IDを指定してリクエストすると、書籍情報が取得できない`(){
         mockMvc
             .perform(get("/books/999"))
             .andExpect(MockMvcResultMatchers.status().isNotFound)
     }
 
     @Test
-    fun `存在する書名で検索すると、該当する書名の書籍情報リストが返る`(){
+    fun `存在する書名で検索すると、該当する書名の書籍情報リストが取得できる`(){
         val result: MvcResult = mockMvc
             .perform(get("/books?title=Clean"))
             .andExpect(MockMvcResultMatchers.status().isOk)
@@ -130,36 +158,48 @@ internal class BookControllerTest(
     }
 
     @Test
-    fun `書籍情報を新規登録できる`(){
-        val book = Book(10, "java code","john smith")
-        val mapper = ObjectMapper()
-        val json: String = mapper.writeValueAsString(book)
-        mockMvc
-            .perform(
-                post("/books")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(json)
-            )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
+    fun `書名、著者名を入力すると、書籍情報を新規登録できる`(){
+        val book = Book(null, "java code","john smith")
+        postNewBook(book, MockMvcResultMatchers.status().isOk)
     }
 
     @Test
-    fun `書籍情報を更新できる`(){
+    fun `著者名のみ入力すると、書籍情報を新規登録できない`(){
+        val book = Book(null, "","john smith")
+        postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
+    }
+
+    @Test
+    fun `書名のみ入力すると、書籍情報を新規登録できない`(){
+        val book = Book(null, "Java Tutorial","")
+        postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
+    }
+
+    @Test
+    fun `書名、著者名ともにブランクでリクエストすると、書籍情報を新規登録できない`(){
+        val book = Book(null, "","")
+        postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
+    }
+
+    @Test
+    fun `書名、著者名を入力すると、書籍情報を更新できる`(){
         val book = Book(1, "Refactoring2","Martin Fowler")
-        val mapper = ObjectMapper()
-        val json: String = mapper.writeValueAsString(book)
-        val result: MvcResult = mockMvc
-            .perform(
-                post("/books/1")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(json)
-            )
-            .andExpect(MockMvcResultMatchers.status().isOk)
-            .andReturn()
+        val result: MvcResult = postUpdateBook(book, MockMvcResultMatchers.status().isOk)
         val updateBook: Book  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
         updateBook.title shouldBe "Refactoring2"
         updateBook.author shouldBe "Martin Fowler"
+    }
+
+    @Test
+    fun `書名のみ入力すると、書籍情報を更新できない`(){
+        val book = Book(1, "Refactoring2","")
+        postUpdateBook(book, MockMvcResultMatchers.status().isBadRequest)
+    }
+
+    @Test
+    fun `著者名のみ入力すると、書籍情報を更新できない`(){
+        val book = Book(1, "","Martin Fowler")
+        postUpdateBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
 }

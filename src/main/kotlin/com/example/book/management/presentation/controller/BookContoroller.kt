@@ -1,6 +1,7 @@
 package com.example.book.management.presentation.controller
 
 import com.example.book.management.domain.model.Book
+import com.example.book.management.domain.model.BookRequest
 import com.example.book.management.domain.repository.BookRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("books")
 @CrossOrigin
-@Validated
 class BookController(private val bookRepository: BookRepository) {
 
     @GetMapping
@@ -25,12 +25,13 @@ class BookController(private val bookRepository: BookRepository) {
         }.orElse(ResponseEntity.notFound().build())
 
     @PostMapping
-    fun createNewBook(@RequestBody book: Book): Book = bookRepository.save(book)
+    fun createNewBook(@RequestBody @Validated request: BookRequest): Book =
+        bookRepository.save(Book(null, request.title, request.author))
 
     @PostMapping("{id}")
     fun updateBookById(
         @PathVariable(value = "id") bookId: Long,
-        @RequestBody newBook: Book
+        @RequestBody @Validated newBook: BookRequest
     ): ResponseEntity<Book> =
         bookRepository.findById(bookId).map { existingBook ->
             val updateBook = existingBook.copy(title = newBook.title, author = newBook.author)
