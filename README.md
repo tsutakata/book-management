@@ -29,6 +29,23 @@
 |GET  |/Books?title={title}  |書名を条件に指定して書籍情報を検索する  |
 |GET  |/Books?author={author}  |著者名を条件に指定して書籍情報を検索する  |
 
+リクエスト例は以下のとおり。
+```
+// 新規登録
+curl -X POST -H "Content-Type: application/json" -d '{"title":"hoge", "author":"fuga"}' http://localhost:8080/books
+
+// 参照
+curl http://localhost:8080/books
+curl http://localhost:8080/books/1
+
+// 検索
+curl http://localhost:8080/books?title=hoge
+curl http://localhost:8080/books?author=fuga
+
+// 更新
+curl -X POST -H "Content-Type: application/json" -d '{"title":"hoge2", "author":"fuga2"}' http://localhost:8080/books/1
+```
+
 ### データベース
 参照するデータベースは以下のとおり。  
 
