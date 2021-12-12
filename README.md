@@ -43,6 +43,7 @@ curl http://localhost:8080/books/1
 // 検索
 curl http://localhost:8080/books?title=hoge
 curl http://localhost:8080/books?author=fuga
+curl http://localhost:8080/books?author=fuga\&field=title
 
 // 更新
 curl -X POST -H "Content-Type: application/json" -d '{"title":"hoge2", "author":"fuga2"}' http://localhost:8080/books/1
