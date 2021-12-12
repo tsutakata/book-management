@@ -26,8 +26,8 @@
 |POST  |/Books  |書籍情報を新規登録する  |
 |GET  |/Books/{id}  |指定した書籍IDに該当する書籍情報を参照する  |
 |POST  |/Books/{id}  |指定した書籍IDに該当する書籍情報を更新する  |
-|GET  |/Books?title={title}  |書名で検索する  |
-|GET  |/Books?author={author}  |著者名で検索する  |
+|GET  |/Books?title={title}  |書名を条件に指定して書籍情報を検索する  |
+|GET  |/Books?author={author}  |著者名を条件に指定して書籍情報を検索する  |
 
 ### データベース
 参照するデータベースは以下のとおり。  
