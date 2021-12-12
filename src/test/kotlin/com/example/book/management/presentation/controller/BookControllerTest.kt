@@ -1,6 +1,7 @@
 package com.example.book.management.presentation.controller
 
 import com.example.book.management.domain.model.Book
+import com.example.book.management.domain.model.BookRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import io.kotest.matchers.shouldBe
@@ -30,7 +31,7 @@ internal class BookControllerTest(
 ) {
     private val mapper: ObjectMapper = ObjectMapper()
 
-    fun postNewBook(book: Book, expectStatus: ResultMatcher){
+    fun postNewBook(book: BookRequest, expectStatus: ResultMatcher){
         val mapper = ObjectMapper()
         val json: String = mapper.writeValueAsString(book)
         mockMvc
@@ -43,12 +44,12 @@ internal class BookControllerTest(
             .andReturn()
     }
 
-    fun postUpdateBook(book: Book, expectStatus: ResultMatcher): MvcResult{
+    fun postUpdateBook(book: BookRequest, expectStatus: ResultMatcher): MvcResult{
         val mapper = ObjectMapper()
         val json: String = mapper.writeValueAsString(book)
         return mockMvc
             .perform(
-                post("/books/${book.id}")
+                post("/books/1")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(json)
             )
@@ -159,31 +160,31 @@ internal class BookControllerTest(
 
     @Test
     fun `書名、著者名を入力すると、書籍情報を新規登録できる`(){
-        val book = Book(null, "java code","john smith")
+        val book = BookRequest("java code","john smith")
         postNewBook(book, MockMvcResultMatchers.status().isOk)
     }
 
     @Test
     fun `著者名のみ入力すると、書籍情報を新規登録できない`(){
-        val book = Book(null, "","john smith")
+        val book = BookRequest("","john smith")
         postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     fun `書名のみ入力すると、書籍情報を新規登録できない`(){
-        val book = Book(null, "Java Tutorial","")
+        val book = BookRequest("Java Tutorial","")
         postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     fun `書名、著者名ともにブランクでリクエストすると、書籍情報を新規登録できない`(){
-        val book = Book(null, "","")
+        val book = BookRequest("","")
         postNewBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     fun `書名、著者名を入力すると、書籍情報を更新できる`(){
-        val book = Book(1, "Refactoring2","Martin Fowler")
+        val book = BookRequest("Refactoring2","Martin Fowler")
         val result: MvcResult = postUpdateBook(book, MockMvcResultMatchers.status().isOk)
         val updateBook: Book  = mapper.readValue(result.response.contentAsString, jacksonTypeRef<Book>())
         updateBook.title shouldBe "Refactoring2"
@@ -192,13 +193,13 @@ internal class BookControllerTest(
 
     @Test
     fun `書名のみ入力すると、書籍情報を更新できない`(){
-        val book = Book(1, "Refactoring2","")
+        val book = BookRequest("Refactoring2","")
         postUpdateBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
     @Test
     fun `著者名のみ入力すると、書籍情報を更新できない`(){
-        val book = Book(1, "","Martin Fowler")
+        val book = BookRequest("","Martin Fowler")
         postUpdateBook(book, MockMvcResultMatchers.status().isBadRequest)
     }
 
